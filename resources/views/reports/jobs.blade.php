@@ -18,6 +18,7 @@
         </tr>
         </thead>
         <tbody>
+        {!!$pie->html() !!}
         @foreach($cargos as $cargo)
             <tr>
                 <td>{{$cargo->nombre}}</td>
@@ -28,5 +29,8 @@
     </table>
 @endsection
 @section('script')
+    {!! Charts::scripts() !!}
+    
 
+    {!! $pie->script() !!}
 @endsection

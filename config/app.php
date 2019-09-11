@@ -1,5 +1,7 @@
 <?php
 
+use ConsoleTVs\Charts\ChartsServiceProvider;
+
 return [
 
     /*
@@ -166,6 +168,7 @@ return [
          * Package Service Providers...
          */
         MaddHatter\LaravelFullcalendar\ServiceProvider::class,
+        ConsoleTVs\Charts\ChartsServiceProvider::class,
         /*
          * Application Service Providers...
          */
@@ -226,6 +229,8 @@ return [
         'Validator' => Illuminate\Support\Facades\Validator::class,
         'View' => Illuminate\Support\Facades\View::class,
         'Calendar' => MaddHatter\LaravelFullcalendar\Facades\Calendar::class,
+        'Charts' => ConsoleTVs\Charts\Facades\Charts::class,
+
 
     ],
 
