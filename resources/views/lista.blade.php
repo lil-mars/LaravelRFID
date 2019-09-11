@@ -3,6 +3,10 @@
 @section('content')
     <div class="container">
         <div>
+            <div>
+                <h1>{{ $empleado->fullName()}}</h1>
+                <h1>{{ $empleado->cargo->nombre}}</h1>
+            </div>
             @php
                 $var = 0
             @endphp
@@ -20,9 +24,6 @@
             </div>
             <div class="panel-body">
                 {!! $calendar->calendar() !!}
-            </div>
-            <div>
-                Total Horas {{$var}}
             </div>
         </div>
     </div>

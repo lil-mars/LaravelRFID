@@ -3,9 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Empleado;
+use App\Feriado;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use MaddHatter\LaravelFullcalendar\Calendar;
+use phpDocumentor\Reflection\Types\Null_;
 
 class EmpleadoController extends Controller
 {
@@ -17,7 +19,7 @@ class EmpleadoController extends Controller
     public function index()
     {
         $empleados = Empleado::all();
-        return view('welcome')->with('empleados',$empleados);
+        return view('welcome')->with('empleados', $empleados);
     }
 
     /**
@@ -50,7 +52,7 @@ class EmpleadoController extends Controller
     public function show($id)
     {
         $empleado = Empleado::find($id);
-        return view('empleados.show')->with('empleado',$empleado);
+        return view('empleados.show')->with('empleado', $empleado);
     }
 
     /**
@@ -73,32 +75,69 @@ class EmpleadoController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $fecha= $request->get('fechaInicio');
+
+        $feriados = Feriado::all();
+        $fecha = $request->get('fechaInicio');
         $fechaFin = $request->get('fechaFin');
         $empleado = Empleado::find($id);
-        $asistencias = $empleado->getAsistencias($fecha,$fechaFin);
+        $asistencias = $empleado->getAsistencias($fecha, $fechaFin);
         $horarios = $empleado->cargo->horarios;
-
         $events = [];
         $hours = 0;
-
-        if($asistencias->count()) {
+        if (isset($empleado->vacaciones[0]))
+            $vacacion = $empleado->vacaciones[0];
+        else{
+            $vacacion = null;
+        }
+        if ($asistencias->count()) {
             foreach ($asistencias as $key => $value) {
+                $fontColor = 'white';
                 $carbon = Carbon::createFromDate($key);
-                $decimal = number_format((float)$value->sum('horasDeTrabajo'),1,'.','');
+                $decimal = number_format((float)$value->sum('horasDeTrabajo'), 1, '.', '');
                 $string = $decimal;
                 $color = 'blue';
-                $decimal < $horarios->sum('horasDeTrabajo') ? $color = "red" : $color = 'blue';
-                if ($carbon->dayOfWeek === 0){
+                $decimal < 8 ? $color = "orange" : $color = 'blue';
+                if ($feriados->pluck('fecha')->contains($key))
+                {
+                    $string = 'Feriado 
+                        ' . $decimal;
+                    $fontColor = 'black';
+                    $color = 'cyan';
+                }
+                else if ( $vacacion != null && $carbon::parse($key)->isBetween($carbon::parse($vacacion->fechaInicio), $carbon::parse($vacacion->fechaFin), true)) {
+                    $string = 'Vacacion' . "
+                        " . "0.0";
+                    $color = 'green';
+                    $decimal = 0;
+                }
+                if ($carbon->dayOfWeek === 0) {
                     $hours = 0;
                     continue;
                 }
-                else if ($carbon->dayOfWeek === 6){
-                    $string = number_format((float)$hours,1,'.','');
-                    $string < ($horarios->sum('horasDeTrabajo')*5) ? $color = "red" : $color = 'blue';
+                else if ($carbon->dayOfWeek === 6)
+                {
+                    $string = number_format((float)$hours, 1, '.', '');
+                    $string < (8 * 5) ? $color = "red" : $color = 'blue';
                 }
+                if ($carbon->isCurrentDay(Carbon::now()))
+                {
+                    $sum = 0;
+                    foreach ($value as $item)
+                    {
+                        if (isset($item->horaEntrada) && !isset($item->horaSalida))
+                        {
+                            $hour = Carbon::parse($item->horaEntrada)->tz('America/La_Paz');
+                            $now = Carbon::now()->tz('America/La_Paz');
+                            $hours = $now->diffInMinutes($hour,true);
+                            $sum += (($hours/60)-4);
+                        }
+                        else{
+                            $sum +=  $item -> horasDeTrabajo;
+                        }
+                    }
 
-
+                    $string = number_format($sum,1,'.','');
+                }
                 $events[] = Calendar::event(
                     $string,
                     true,
@@ -109,37 +148,43 @@ class EmpleadoController extends Controller
                     [
                         'textColor' => 'white',
                         'color' => $color,
+                        'textColor' => $fontColor,
                     ]
 
                 );
-                $hours += $value->sum('horasDeTrabajo');
+
+                $hours += $decimal;
             }
         }
         $calendar = \Calendar::addEvents($events)
-        ->setOptions
-        ([ //set fullcalendar options
-            'monthNames'=> ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio',
-            'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'],
-            'dayNames' => ['Domingo', 'Lunes', 'Martes', 'Miercoles',
-            'Jueves', 'Viernes', 'Sabado'],
-            'monthNamesShort' => ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun',
-            'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],
-            'dayNamesShort' => ['Dom', 'Lun', 'Mar', 'Mie', 'Jue', 'Vie','Total horas'],
-            'defaultDate' => $fecha,
-            'buttonText' => [
-                'today' => 'Hoy',
-                'day' => 'Dia',
-                'month' => 'Mes',
-                'week' => 'Semana',
-            ],
-        ]);
-
-        return view('lista')
-        ->with('asistencias',$asistencias)
-        ->with('empleado',$empleado)
-        ->with('calendar',$calendar);
-
-
+            ->setOptions
+            ([ //set fullcalendar options
+                'monthNames' => ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio',
+                    'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'],
+                'dayNames' => ['Domingo', 'Lunes', 'Martes', 'Miercoles',
+                    'Jueves', 'Viernes', 'Sabado'],
+                'monthNamesShort' => ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun',
+                    'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],
+                'dayNamesShort' => ['Dom', 'Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Total horas'],
+                'defaultDate' => $fecha,
+                'buttonText' => [
+                    'today' => 'Hoy',
+                    'day' => 'Dia',
+                    'month' => 'Mes',
+                    'week' => 'Semana',
+                ],
+            ]);
+        if ($empleado->cargo->flexible == 1) {
+            return view('empleados.show')
+                ->with('empleado', $empleado)
+                ->with('asistencias', $asistencias)
+                ->with('calendar',$calendar);
+        } else {
+            return view('lista')
+                ->with('asistencias', $asistencias)
+                ->with('empleado', $empleado)
+                ->with('calendar', $calendar);
+        }
     }
 
     /**

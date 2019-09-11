@@ -5,30 +5,12 @@
         <div>
             <h1>
                 {{$empleado->fullName() }}
+                <br>
                 {{$empleado->cargo->nombre }}
             </h1>
             <h3>
                 Horario
             </h3>
-            <table>
-                <tbody>
-                @foreach($empleado->cargo->horarios as $horario)
-                    <tr>
-                        <td>
-                            Total horas: {{$horario->horasDeTrabajo}}
-                        </td>
-
-
-                        <td>
-                            {{$horario->horaSalida}}
-                        </td>
-                        <td>
-                            {{$horario->turno}}
-                        </td>
-                    </tr>
-                @endforeach
-                </tbody>
-            </table>
             @php
                 $var = 0
             @endphp
@@ -44,21 +26,53 @@
                 </form>
             </div>
             <br>
-            <table border="1" class="table">
 
-                @foreach($empleado->getAsistencias() as $Asistencia => $collection)
-                    <tr>
-                        <td>{{$empleado->convertirFecha($Asistencia) }}</td>
-                        <td> {{$collection->sum('horasDeTrabajo')}}</td>
-                        @php
-                            $var += $collection->sum('horasDeTrabajo')
-                        @endphp
-                    </tr>
-                @endforeach
-            </table>
-            <div>
-                Total Horas {{$var}}
+            <div class="panel-body">
+                {!! $calendar->calendar() !!}
             </div>
+
+            @foreach($asistencias as $key => $value)
+                <table class="table table-dark">
+                    <thead>
+                    <tr>
+                        <th> {{$empleado->cargo->nombre }} </th>
+                        <th> {{$empleado->weekday($key) }} - {{ $key }} </th>
+                    </tr>
+                    <tr>
+                        <th> {{$empleado->fullName() }} </th>
+                        <th> Entrada</th>
+                        <th> Salida</th>
+                        <th> Total Horas</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    @foreach($value as $item)
+                        <tr>
+                            <td></td>
+                            <td> {{  $item -> horaEntrada}} </td>
+                            <td> {{  $item -> horaSalida}} </td>
+                            <td> {{  $item -> horasDeTrabajo}} </td>
+                        </tr>
+                    @endforeach
+                    <tr>
+                        <td colspan="3">TOTAL</td>
+                        @if($value->sum('horasDeTrabajo') < 8)
+                            <td class="btn btn-warning">  {{ $value->sum('horasDeTrabajo') }} </td>
+                        @else
+                            <td>  {{ $value->sum('horasDeTrabajo') }} </td>
+                        @endif
+                    </tr>
+                    </tbody>
+                </table>
+            @endforeach
         </div>
     </div>
 @endsection
+@section('script')
+
+    <script src="{{asset('js/moment.min.js')}}"></script>
+    <script src="{{asset('js/fullcalendar.min.js')}}"></script>
+    {!! $calendar->script() !!}
+
+@endsection
+

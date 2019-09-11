@@ -21,7 +21,7 @@
                         <form method="post" action="{{ route('empleados.update', $empleado->idEmpleado)}}">
                             @method('PATCH')
                             @csrf
-                            <input type="submit" value="{{$empleado->fullName()}}">
+                            <input class="btn btn-primary" type="submit" value="{{$empleado->fullName()}}">
                         </form>
                     </td>
                     <td>{{$empleado->age()}}</td>

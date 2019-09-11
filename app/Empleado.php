@@ -13,7 +13,7 @@ class Empleado extends Model
     protected $fillable = [
         'idEmpleado','idCargo','nombre','segundoNombre','apellidoPaterno','apellidoMaterno'
         ,'estadoCivil','activo','genero','celular','numeroFijo','fechaNacimiento','ci'
-        ,'embarazada','fotografia','idReferencia','usuario','contrasena','idRol'
+        ,'embarazada','fotografia','idReferencia','usuario','contrasena','idRol','edad'
     ];
 
     public function age(){
@@ -34,6 +34,17 @@ class Empleado extends Model
         $var = $this->hasMany('App\Asistencia','idEmpleado','idEmpleado');
         return $var;
     }
+    public function vacaciones()
+    {
+        $var = $this->hasMany('App\Vacacion','idEmpleado','idEmpleado');
+        return $var;
+    }
+    public function familiares()
+    {
+        $var = $this->hasMany('App\Familiar','idEmpleado','idEmpleado');
+        return $var;
+        return $var;
+    }
     public function getAsistencias($fechaInicio='2000-08-01',$fechaFinal=null){
         if ($fechaFinal === null){
             //Cambiando el TIMEZONE DE NUESTRO VARIABLE
@@ -47,6 +58,11 @@ class Empleado extends Model
         $var = Carbon::createFromDate($date);
         return $var ->formatLocalized('%A %d %B %Y');
     }
+    public function weekDay($date){
+        $var = Carbon::createFromDate($date);
+        return $var ->formatLocalized('%A');
+    }
+
     public function getHoursOfWork(){
         foreach ($this->getAsistencias() as $fecha)
         {
