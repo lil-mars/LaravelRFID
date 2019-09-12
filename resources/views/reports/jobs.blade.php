@@ -10,6 +10,8 @@
 @section('content')
 
     <h1>Lista de Cargos</h1>
+    {!!$chart->html() !!}
+
     <table class="table table-bordered">
         <thead>
         <tr>
@@ -18,7 +20,7 @@
         </tr>
         </thead>
         <tbody>
-        {!!$pie->html() !!}
+
         @foreach($cargos as $cargo)
             <tr>
                 <td>{{$cargo->nombre}}</td>
@@ -30,7 +32,11 @@
 @endsection
 @section('script')
     {!! Charts::scripts() !!}
-    
-
-    {!! $pie->script() !!}
+    <script src="{{ asset('js/printThis.js') }}"></script>
+    <script>
+        $('#basic').on("click", function () {
+            $('#report').printThis();
+        });
+    </script>
+    {!! $chart->script() !!}
 @endsection

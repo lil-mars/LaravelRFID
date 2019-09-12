@@ -1,9 +1,15 @@
 @extends('layout')
 @section('search')
-    <form method="post" action="{{route('reports.selectChild')}}">
+    <form method="post" action="{{route('reports.selectHours')}}">
         @csrf
-        <label>Cantidad de hijos</label>
-        <input class="form" name="number" type="text">
+        <label>Cargo</label>
+        <select>
+            <option></option>
+        </select>
+        <label>Fecha inicio: </label>
+        <input class="form" name="startDate" type="date">
+        <label>Fecha fin: </label>
+        <input class="form" name="endDate" type="date">
         <input class="btn btn-primary" value="Enviar" type="submit">
     </form>
 @endsection

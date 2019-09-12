@@ -25,3 +25,5 @@ Route::post('child','ReportsController@selectChild')->name('reports.selectChild'
 Route::get('age','ReportsController@age')->name('reports.age');
 
 Route::get('gender','ReportsController@gender')->name('reports.gender');
+
+Route::get('hours','ReportsController@hours')->name('reports.hours');

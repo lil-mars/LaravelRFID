@@ -6,20 +6,55 @@ use App\Cargo;
 use App\Empleado;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-
+use Charts;
 class ReportsController extends Controller
 {
+    public function hours()
+    {
+        $number = 10;
+        $filteredCargos = [];
+        $names = [];
+        $quatities = [];
+        $cargos = Cargo::all();
+        foreach ($cargos as $cargo) {
+            if ($cargo->empleados->count() >= $number){
+                $names[] = $cargo->nombre;
+                $quatities[] = $cargo->empleados()->count();
+                $filteredCargos[] = $cargo;
+            }
+        }
+        $chart  =	 Charts::create('bar', 'highcharts')
+            ->title('Reporte de cargos')
+            ->labels($names)
+            ->values($quatities)
+            ->dimensions(1000,500)
+            ->responsive(false);
+
+        return view('reports.jobs',compact('chart'))->with('cargos', $filteredCargos);
+    }
+
     public function jobs()
     {
         $number = 10;
         $filteredCargos = [];
+        $names = [];
+        $quatities = [];
         $cargos = Cargo::all();
         foreach ($cargos as $cargo) {
-            if ($cargo->empleados->count() >= $number)
+            if ($cargo->empleados->count() >= $number){
+                $names[] = $cargo->nombre;
+                $quatities[] = $cargo->empleados()->count();
                 $filteredCargos[] = $cargo;
+            }
         }
-        $filteredCargos;
-        return view('reports.jobs')->with('cargos', $filteredCargos);
+        $chart  =	 Charts::create('bar', 'highcharts')
+            ->title('Reporte de cargos')
+            ->labels($names)
+            ->values($quatities)
+            ->dimensions(1000,500)
+            ->responsive(false);
+
+        return view('reports.jobs',compact('chart'))->with('cargos', $filteredCargos);
     }
 
     public function selectJobs(Request $request)
@@ -27,31 +62,68 @@ class ReportsController extends Controller
         $number = $request->get('number');
         $filteredCargos = [];
         $cargos = Cargo::all();
+        $names = [];
+        $quatities = [];
         foreach ($cargos as $cargo) {
-            if ($cargo->empleados->count() >= $number)
+            if ($cargo->empleados->count() >= $number){
+                $names[] = $cargo->nombre;
+                $quatities[] = $cargo->empleados()->count();
                 $filteredCargos[] = $cargo;
+            }
         }
-        $filteredCargos;
-        return view('reports.jobs')->with('cargos', $filteredCargos);
+
+        $chart  =	 Charts::create('bar', 'highcharts')
+            ->title('Reporte de cargos')
+            ->labels($names)
+            ->values($quatities)
+            ->dimensions(1000,500)
+            ->responsive(false);
+
+
+        return view('reports.jobs',compact('chart'))->with('cargos', $filteredCargos);
     }
 
     public function civilStatus()
     {
         $employees = Empleado::all();
         $civilStates = $employees->groupBy('estadoCivil');
-
-        return view('reports.civilstatus')->with('civilStates', $civilStates);
+        $names = [];
+        $quatities = [];
+        foreach ($civilStates as $key => $civilState)  {
+            $names[] = $key;
+            $quatities[] = $civilState->count();
+        }
+        $chart  =	 Charts::create('bar', 'highcharts')
+            ->title('Reporte de empleados segun su estado civil')
+            ->labels($names)
+            ->values($quatities)
+            ->dimensions(1000,500)
+            ->responsive(false);
+        return view('reports.civilstatus',compact('chart'))->with('civilStates', $civilStates);
     }
 
     public function child()
     {
         $employees = Empleado::all();
         $filteredEmployees = [];
+        $names = [];
+        $quatities = [];
         foreach ($employees as $employee) {
             if ($employee->familiares->where('tipoRelacion', 'Hijo')->count() > 0)
+            {
                 $filteredEmployees[] = $employee;
+                $names[] = $employee -> fullName();
+                $quatities[] = $employee -> familiares->where('tipoRelacion', 'Hijo') -> count();
+            }
         }
-        return view('reports.familiar')->with('filteredEmployees', $filteredEmployees);
+
+        $chart  =	 Charts::create('bar', 'highcharts')
+            ->title('Reporte de Empleado segun cantidad de hijos')
+            ->labels($names)
+            ->values($quatities)
+            ->dimensions(1000,500)
+            ->responsive(false);
+        return view('reports.familiar',compact('chart'))->with('filteredEmployees', $filteredEmployees);
     }
 
     public function selectChild(Request $request)
@@ -59,81 +131,115 @@ class ReportsController extends Controller
         $number = $request->get('number');
         $employees = Empleado::all();
         $filteredEmployees = [];
+        $names = [];
+        $quatities = [];
         foreach ($employees as $employee) {
             if ($employee->familiares->where('tipoRelacion', 'Hijo')->count() > $number)
+            {
                 $filteredEmployees[] = $employee;
+                $names[] = $employee -> fullName();
+                $quatities[] = $employee -> familiares->where('tipoRelacion', 'Hijo') -> count();
+            }
         }
-        return view('reports.familiar')->with('filteredEmployees', $filteredEmployees);
+
+        $chart  =	 Charts::create('bar', 'highcharts')
+            ->title('Reporte de Empleado segun cantidad de hijos')
+            ->labels($names)
+            ->values($quatities)
+            ->dimensions(1000,500)
+            ->responsive(false);
+        return view('reports.familiar',compact('chart'))->with('filteredEmployees', $filteredEmployees);
     }
 
     public function age()
     {
         $employees = Empleado::get();
-
+        $names = [];
+        $quatities = [];
         foreach ($employees as $employee) {
             $birthDate = Carbon::parse($employee->fechaNacimiento);
             $employee->edad = $birthDate->diffInYears(Carbon::now());
         }
         $emp = $employees->sortByDesc('edad')->groupBy('edad');
 
+        foreach ($emp as $key => $employee)
+        {
+            $names[] = $key;
+            $quatities[] = $employee->count();
+        }
 
-        return view('reports.age')->with('filteredEmployees', $emp);
+        $chart  =	 Charts::create('bar', 'highcharts')
+            ->title('Reporte de empleados segun su estado civil')
+            ->labels($names)
+            ->values($quatities)
+            ->dimensions(1000,500)
+            ->responsive(false);
+
+        return view('reports.age',compact('chart'))->with('filteredEmployees', $emp);
     }
     public function gender()
     {
         $nowYear = Carbon::now()->year;
         $employees = Empleado::all();
         $list = [];
-        $counts = [];
-        $number=0;
-        $years = collect(
+        $lastYear = $nowYear - 1;
+        $lastLastYear = $nowYear - 2;
+        $names =
             [
-            $nowYear => ['F'=>0,'M'=>0],
-            $nowYear-1 => ['F'=>0,'M'=>0],
-            $nowYear-2 => ['F' =>0,'M'=>0]
+            "Hombres ".$nowYear,
+            "Mujeres ".$nowYear,
+            "Hombres ".$lastYear,
+            "Mujeres ".$lastYear,
+            "Hombres ".$lastLastYear,
+            "Mujeres ".$lastLastYear,
             ]
-        );
-        $help = $years->get($nowYear);
-        $years[$nowYear]['F'] = [] ;
-        dd($years[$nowYear]['F']);
-        foreach ($employees as $employee) {
+        ;
+        $quantities = [0,0,0,0,0,0];
+
+
+        foreach ($employees as $key => $employee) {
             $flag1 = false;
             $flag2 = false;
             $flag3 = false;
-            foreach ($employee->asistencias as $asistencia){
-                $year = Carbon::parse($asistencia->fecha)->year;
+            foreach ($employee->getAsistencias() as $key => $asistencia){
+                $year = Carbon::parse($key)->year;
 
-                if ($nowYear === $year && !$flag1){
-                    if ($employee->gender == 'M'){
-                        dd($years);
-                    }
-                    else
-                        $years->get($nowYear)["F"]++;
+                if ($nowYear == $year && !$flag1){
+                    if ($employee->genero == 'M')
+                        $quantities[0]++;
+                    else if ($employee->genero == 'F')
+                        $quantities[1]++;
                     $flag1 = true;
+                }
+                elseif ( $nowYear-1 == $year && !$flag2){
+                    if ($employee->genero == 'M')
+                        $quantities[2]++;
+                    else
+                        $quantities[3]++;
+                    $flag2 = true;
 
                 }
-                elseif ( $nowYear-1 === $year && !$flag2){
-
-                }
-                elseif ($nowYear-2 === $year && !$flag3){
-                    $list[] =  $nowYear-2;
+                elseif ($nowYear-2 == $year && !$flag3){
+                    if ($employee->genero == 'M')
+                        $quantities[4]++;
+                    else
+                        $quantities[5]++;
+                    $flag3 =  true;
                 }
                 if ($flag1 && $flag2 && $flag3){
                     continue;
                 }
-                dd($years);
 
             }
         }
+        $chart  =	 Charts::create('bar', 'highcharts')
+            ->title('Reporte de empleados segun su estado civil')
+            ->labels($names)
+            ->values($quantities)
+            ->dimensions(1000,500)
+            ->responsive(false);
 
 
-        foreach ($employees as $employee) {
-            $birthDate = Carbon::parse($employee->fechaNacimiento);
-            $employee->edad = $birthDate->diffInYears(Carbon::now());
-        }
-        $emp = $employees->sortByDesc('edad')->groupBy('edad');
-
-
-        return view('reports.age')->with('filteredEmployees', $emp);
+        return view('reports.gender',compact('chart'));
     }
 }

@@ -16,11 +16,13 @@
     </button>
     <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
         <div class="navbar-nav">
-            <a class="nav-item nav-link" href="{{ route('empleados.index') }}">Lista de empleados</a>
-            <a class="nav-item nav-link" href="{{ route('reports.jobs') }}">Reporte de cargos</a>
-            <a class="nav-item nav-link" href="{{ route('reports.civilStatus') }}">Reporte por estado civil</a>
-            <a class="nav-item nav-link" href="{{ route('reports.child') }}">Reporte Segun familiar</a>
-            <a class="nav-item nav-link" href="{{ route('reports.age') }}">Reporte Segun edad</a>
+            <a class="nav-item nav-link" href="{{ route('empleados.index') }}">Empleados</a>
+            <a class="nav-item nav-link" href="{{ route('reports.jobs') }}">Cargos</a>
+            <a class="nav-item nav-link" href="{{ route('reports.civilStatus') }}">Estado civil</a>
+            <a class="nav-item nav-link" href="{{ route('reports.child') }}">Familiar</a>
+            <a class="nav-item nav-link" href="{{ route('reports.age') }}">Edad</a>
+            <a class="nav-item nav-link" href="{{ route('reports.gender') }}">Genero</a>
+            <a class="nav-item nav-link" href="{{ route('reports.hours') }}">Hora</a>
 
         </div>
     </div>
@@ -30,36 +32,17 @@
     <button class="btn btn-warning btn-lg btn-block" id="basic">Imprimir</button>
     <br>
     @yield('search')
-    <div class="report">
+    <div id="report">
         <div class="col-sm">
-            <img  class="img-left"src="{{asset('images/kantuta.png')}}" style="width: 30px">
+            <img class="img-left" src="{{asset('images/kantuta.png')}}" style="width: 30px">
             <div>
                 <h1>Kantuta</h1>
             </div>
         </div>
         @yield('content')
     </div>
-
-
 </div>
-
 </body>
 </html>
-<script src="{{ asset('js/jquery.js') }}"></script>
-<script src="{{ asset('js/printThis.js') }}"></script>
-<script>
-    $('#basic').on("click", function () {
-        $('.report').printThis({
-            pageTitle: "Reporte Kantuta",
-            removeInline: false, // postfix to html
-            doctypeString: "",
-            printDelay: 333,            // variable print delay
-            base: false,
-            footer: null
-
-        });
-    });
-</script>
-
 
 @yield('script')
