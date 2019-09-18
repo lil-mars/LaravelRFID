@@ -70,8 +70,11 @@
 @endsection
 @section('script')
 
+    <script src="{{asset('js/jquery.js')}}"></script>
     <script src="{{asset('js/moment.min.js')}}"></script>
     <script src="{{asset('js/fullcalendar.min.js')}}"></script>
+
+
     {!! $calendar->script() !!}
 
 @endsection

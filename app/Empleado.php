@@ -43,7 +43,6 @@ class Empleado extends Model
     {
         $var = $this->hasMany('App\Familiar','idEmpleado','idEmpleado');
         return $var;
-        return $var;
     }
     public function getAsistencias($fechaInicio='2000-08-01',$fechaFinal=null){
         if ($fechaFinal === null){
@@ -63,10 +62,4 @@ class Empleado extends Model
         return $var ->formatLocalized('%A');
     }
 
-    public function getHoursOfWork(){
-        foreach ($this->getAsistencias() as $fecha)
-        {
-
-        }
-    }
 }

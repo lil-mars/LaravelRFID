@@ -25,6 +25,41 @@
             <div class="panel-body">
                 {!! $calendar->calendar() !!}
             </div>
+            @foreach($asistencias as $key => $value)
+                <table class="table table-dark">
+                    <thead>
+                    <tr>
+                        <th> {{$empleado->cargo->nombre }} </th>
+                        <th> {{$empleado->weekday($key) }} - {{ $key }} </th>
+                    </tr>
+                    <tr>
+                        <th> {{$empleado->fullName() }} </th>
+                        <th> Entrada</th>
+                        <th> Salida</th>
+                        <th> Total Horas</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    @foreach($value as $item)
+                        <tr>
+                            <td></td>
+                            <td> {{  $item -> horaEntrada}} </td>
+                            <td> {{  $item -> horaSalida}} </td>
+                            <td> {{  $item -> horasDeTrabajo}} </td>
+                        </tr>
+                    @endforeach
+                    <tr>
+                        <td colspan="3">TOTAL</td>
+                        @if($value->sum('horasDeTrabajo') < 8)
+                            <td class="btn btn-warning">  {{ $value->sum('horasDeTrabajo') }} </td>
+                        @else
+                            <td>  {{ $value->sum('horasDeTrabajo') }} </td>
+                        @endif
+                    </tr>
+                    </tbody>
+                </table>
+            @endforeach
+            <br>
         </div>
     </div>
 @endsection
