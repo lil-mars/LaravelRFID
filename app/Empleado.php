@@ -10,6 +10,7 @@ class Empleado extends Model
 {
     protected $table = "Empleado";
     protected $primaryKey = "idEmpleado";
+    public $timestamps = false;
     protected $fillable = [
         'idEmpleado','idCargo','nombre','segundoNombre','apellidoPaterno','apellidoMaterno'
         ,'estadoCivil','activo','genero','celular','numeroFijo','fechaNacimiento','ci'
