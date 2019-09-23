@@ -28,24 +28,38 @@ class UserController extends Controller
         //
     }
 
+    public function check(Request $request){
+        $user = $request->get('user');
+        $password = $request->get('password');
+        $employees = Empleado::all();
+        $employee = $employees->where('usuario','=',$user)->first();
+        if(Hash::check($password,$employee->contrasena))
+        {
+            dd("OK");
+        }
+        else
+        {
+            dd("Wrong");
+        }
+    }
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
     {
         $employee = new Empleado();
-        $employee->ci =  $request->get('ci');
-        $employee->nombre =  $request->get('firstName');
-        $employee->segundoNombre =  $request->get('secondName');
-        $employee->apellidoPaterno =  $request->get('fatherName');
-        $employee->apellidoMaterno =  $request->get('motherName');
-        $employee->genero =  $request->get('gender');
-        $employee->usuario =  $request->get('user');
-        $employee->contrasena =  Hash::make($request->get('password'));
-        $employee->idCargo =  $request->get('idCargo');
+        $employee->ci = $request->get('ci');
+        $employee->nombre = $request->get('firstName');
+        $employee->segundoNombre = $request->get('secondName');
+        $employee->apellidoPaterno = $request->get('fatherName');
+        $employee->apellidoMaterno = $request->get('motherName');
+        $employee->genero = $request->get('gender');
+        $employee->usuario = $request->get('user');
+        $employee->contrasena = Hash::make($request->get('password'));
+        $employee->idCargo = $request->get('idCargo');
         $employee->idRol = 3;
         $employee->save();
         dd($employee);
@@ -56,7 +70,7 @@ class UserController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
      * @return \Illuminate\Http\Response
      */
     public function show($id)
@@ -67,7 +81,7 @@ class UserController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
      * @return \Illuminate\Http\Response
      */
     public function edit($id)
@@ -78,8 +92,8 @@ class UserController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
+     * @param \Illuminate\Http\Request $request
+     * @param int $id
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
@@ -90,7 +104,7 @@ class UserController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param int $id
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)

@@ -11,6 +11,9 @@
 |
 */
 
+use App\Empleado;
+use Illuminate\Support\Facades\Hash;
+
 Route::get('/', 'EmpleadoController@index');
 Route::resource('empleados', 'EmpleadoController');
 
@@ -31,4 +34,18 @@ Route::get('hours','ReportsController@hours')->name('reports.hours');
 Route::resource('user', 'UserController');
 Route::get('register',function (){
    return view('login.register');
+});
+Route::get('login',function (){
+    return view('login.login');
+});
+Route::post('check','UserController@check')->name('check');
+Route::get('reset',function (){
+
+    $employees = Empleado::all();
+    foreach ($employees as $employee){
+        $employee -> contrasena = Hash::make($employee -> contrasena);
+        $employee -> save();
+        dd($employee -> contrasena);
+
+    }
 });
